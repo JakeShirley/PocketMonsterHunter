@@ -1,0 +1,1 @@
+.\emulators\vba\VisualBoyAdvance.exe .\main.gba
