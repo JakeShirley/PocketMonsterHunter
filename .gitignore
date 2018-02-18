@@ -1,3 +1,22 @@
+#
+# PocketMonsterHunter ignores
+#
+
+*.gba
+*.elf
+build/
+
+# Emulator output
+emulators/vba/*.ini
+emulators/no$gba/*.INP
+
+#
+# Generic C Ignores
+#
+
+# git
+*.orig
+
 # Prerequisites
 *.d
 
@@ -5,7 +24,6 @@
 *.o
 *.ko
 *.obj
-*.elf
 
 # Linker output
 *.ilk
@@ -50,6 +68,3 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-emulators/vba/vba.ini
-emulators/vba/vba1.ini
-main.gba
