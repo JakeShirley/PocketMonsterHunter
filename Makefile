@@ -130,7 +130,8 @@ $(INTERMEDIATE):
 
 #---------------------------------------------------------------------------------
 clean:
-	@echo clean ...
+	@echo Cleaning...
+	@echo Deleting $(BUILD)...
 	@rm -fr $(BUILD)
  
  
