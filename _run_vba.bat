@@ -1,1 +1,1 @@
-.\emulators\vba\VisualBoyAdvance.exe .\main.gba
+.\emulators\vbam-2.0.1\bin\visualboyadvance-m .\main.gba
