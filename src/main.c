@@ -10,6 +10,8 @@ static const uint16_t WHITE = 0xFFFF;  // Black
 
 static uint16_t *const SCREEN = ((uint16_t *)0x06000000);
 
+#include "assets/tileset_biome.c"
+
 static uint16_t *const TIMERS[4] = {
     ((uint16_t *)0x4000100), 
     ((uint16_t *)0x4000104), 
