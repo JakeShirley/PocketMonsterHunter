@@ -1,1 +1,1 @@
-.\emulators\vbam-2.0.1\bin\visualboyadvance-m .\main.gba
+.\emulators\vbam-2.0.1\bin\visualboyadvance-m .\build\PocketMonsterHunter.gba

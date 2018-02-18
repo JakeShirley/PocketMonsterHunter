@@ -17,7 +17,8 @@ include $(DEVKITARM)/gba_rules
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
-# BUILD is the directory where object files & intermediate files will be placed
+# BUILD is the root output folder (not tracked by source control)
+# INTERMEDIATE is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 # DATA is a list of directories containing binary data
@@ -27,12 +28,13 @@ include $(DEVKITARM)/gba_rules
 # the makefile is found
 #
 #---------------------------------------------------------------------------------
-TARGET		:= $(notdir $(CURDIR))
-BUILD		:= build
-SOURCES		:= src
-INCLUDES	:= include
-DATA		:=
-MUSIC		:=
+TARGET			:= $(notdir $(CURDIR))
+BUILD			:= build
+INTERMEDIATE	:= $(BUILD)/intermediate
+SOURCES			:= src
+INCLUDES		:= include
+DATA			:=
+MUSIC			:=
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -73,13 +75,13 @@ LIBDIRS	:=	$(LIBGBA)
 ifneq ($(BUILDDIR), $(CURDIR))
 #---------------------------------------------------------------------------------
  
-export OUTPUT	:=	$(CURDIR)/$(TARGET)
+export OUTPUT	:=	$(CURDIR)/build/$(TARGET)
  
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(GRAPHICS),$(CURDIR)/$(dir))
 
-export DEPSDIR	:=	$(CURDIR)/$(BUILD)
+export DEPSDIR	:=	$(CURDIR)/$(INTERMEDIATE)
 
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
@@ -115,21 +117,21 @@ export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-iquote $(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-					-I$(CURDIR)/$(BUILD)
+					-I$(CURDIR)/$(INTERMEDIATE)
  
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-.PHONY: $(BUILD) clean
+.PHONY: $(INTERMEDIATE) clean
  
 #---------------------------------------------------------------------------------
-$(BUILD):
+$(INTERMEDIATE):
 	@[ -d $@ ] || mkdir -p $@
-	@$(MAKE) BUILDDIR=`cd $(BUILD) && pwd` --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	@$(MAKE) BUILDDIR=`cd $(INTERMEDIATE) && pwd` --no-print-directory -C $(INTERMEDIATE) -f $(CURDIR)/Makefile
 
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).gba 
+	@rm -fr $(BUILD)
  
  
 #---------------------------------------------------------------------------------
