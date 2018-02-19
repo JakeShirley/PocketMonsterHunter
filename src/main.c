@@ -12,7 +12,8 @@ static const uint16_t WHITE = 0xFFFF;  // Black
 #define SCREEN_HEIGHT 160
 
 #define CURSOR_HISTORY_COUNT 20
-#define CURSOR_SCALE 100
+
+#define REG_VCOUNT *((volatile uint16_t *)0x04000006)
 
 static uint16_t *const SCREEN = ((uint16_t *)0x06000000);
 
@@ -51,12 +52,20 @@ void setupTimer() {
   //*TIMER_CONTROLS[3] = 0b0000000010000000; // Enabled with F/1 speed
 }
 
+void vid_vsync() {
+  while (REG_VCOUNT >= 160) {
+  };  // wait till VDraw
+  while (REG_VCOUNT < 160) {
+  };  // wait till VBlank
+}
+
 int mod(int a, int b) {
   int r = a % b;
   return r < 0 ? r + b : r;
 }
 
 void updateSnake(const InputHandler *inputHandler) {
+  static const int CURSOR_SCALE = 100;
   static Point cursorPoints[CURSOR_HISTORY_COUNT] = {0};
   static int cursorIndex = 0;
 
@@ -132,6 +141,7 @@ void doBitmapStuff() {
 }
 
 void doSpriteStuff() {
+  static const int CURSOR_SCALE = 1;
   static Point cursorPos = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
 
   InputHandler inputHandler;
@@ -143,6 +153,7 @@ void doSpriteStuff() {
   Scene_init(&scene);
 
   while (1) {
+    vid_vsync();
     InputHandler_update(&inputHandler);
 
     bool moved = false;
@@ -175,7 +186,7 @@ void doSpriteStuff() {
 }
 
 int main() {
-  //doBitmapStuff();
+  // doBitmapStuff();
   doSpriteStuff();
   return 0;
 }
