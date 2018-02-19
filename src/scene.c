@@ -1,7 +1,7 @@
 #include "scene.h"
 
 // PMH
-#include "metr.h"
+#include "assets_player.h"
 
 // stl
 #include <string.h>
@@ -34,25 +34,15 @@ void Scene_init(Scene* self) {
 
   // Places the tiles of a 4bpp boxed metroid sprite
   //   into LOW obj memory (cbb == 4)
-  memcpy(&tile_mem[4][0], metr_boxTiles, metr_boxTilesLen);
-  memcpy(sprite_palette_mem, metrPal, metrPalLen);
+  memcpy(&tile_mem[4][0], assets_playerTiles, assets_playerTilesLen);
+  memcpy(sprite_palette_mem, assets_playerPal, assets_playerPalLen);
 
   self->mSpriteAffineBuffer = (SPRITE_AFFINE*)self->mSpriteObjectBuffer;
 
   for (int i = 0; i < SPRITE_COUNT; ++i) {
-    // Hide sprites
+    // Hide all sprites
     self->mSpriteObjectBuffer[i].mObjectMode = SPRITE_OBJ_OBJECT_MODE_HIDDEN;
   }
-
-  // Set up metriod!
-  SPRITE_OBJ* metroid = &self->mSpriteObjectBuffer[0];
-  metroid->mSpriteShape = 0; // Square
-  metroid->mX = 60;
-  metroid->mY = 20;
-  metroid->mSpriteSize = 3; // 64x64
-  metroid->mPalleteBankIndex = 0;
-  metroid->mTileIndex = 0;
-  metroid->mObjectMode = SPRITE_OBJ_OBJECT_MODE_NORMAL;
 
    // Initialize all sprites
   Scene_submit(self);

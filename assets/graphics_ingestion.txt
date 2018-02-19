@@ -1,0 +1,8 @@
+Save file as a BMP8
+
+Run grit on the bmp8
+C:\devkitPro\devkitARM\bin\grit.exe player/player.bmp -gB4 -Mw 4 -Mh 4 -o assets_player
+
+Paste into the src/ directory and consume!
+
+TODO: Make this an automated build step

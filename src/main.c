@@ -2,6 +2,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// PMH
+#include "input.h"
+#include "player.h"
+#include "point.h"
+#include "scene.h"
+
 static const uint16_t RED = 0x001F;    // 000000000011111 Red
 static const uint16_t GREEN = 0x03E0;  // 000001111100000 Green
 static const uint16_t BLUE = 0x7C00;   // 111110000000000 Blue
@@ -17,21 +23,12 @@ static const uint16_t WHITE = 0xFFFF;  // Black
 
 static uint16_t *const SCREEN = ((uint16_t *)0x06000000);
 
-#include "assets/tileset_biome.h"
-#include "input.h"
-#include "scene.h"
-
 static uint16_t *const TIMERS[4] = {
     ((uint16_t *)0x4000100), ((uint16_t *)0x4000104), ((uint16_t *)0x4000108),
     ((uint16_t *)0x400010C)};
 static uint16_t *const TIMER_CONTROLS[4] = {
     ((uint16_t *)0x4000102), ((uint16_t *)0x4000106), ((uint16_t *)0x400010A),
     ((uint16_t *)0x400010E)};
-
-typedef struct Point {
-  int x;
-  int y;
-} Point;
 
 void setPixel(Point pt, uint16_t color) { SCREEN[pt.x + pt.y * 240] = color; }
 
@@ -141,9 +138,6 @@ void doBitmapStuff() {
 }
 
 void doSpriteStuff() {
-  static const int CURSOR_SCALE = 1;
-  static Point cursorPos = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
-
   InputHandler inputHandler;
   InputHandler_init(&inputHandler);
 
@@ -152,36 +146,15 @@ void doSpriteStuff() {
   Scene scene;
   Scene_init(&scene);
 
+  Player player;
+  Player_init(&player, &inputHandler, &scene.mSpriteObjectBuffer[0]);
+
   while (1) {
     vid_vsync();
     InputHandler_update(&inputHandler);
 
-    bool moved = false;
-    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_LEFT)) {
-      cursorPos.x--;
-      moved |= (cursorPos.x % CURSOR_SCALE == 0);
-    }
-    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_RIGHT)) {
-      cursorPos.x++;
-      moved |= (cursorPos.x % CURSOR_SCALE == 0);
-    }
-    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_UP)) {
-      cursorPos.y--;
-      moved |= (cursorPos.y % CURSOR_SCALE == 0);
-    }
-    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_DOWN)) {
-      cursorPos.y++;
-      moved |= (cursorPos.y % CURSOR_SCALE == 0);
-    }
-
-    if (moved) {
-      SPRITE_OBJ *alien = &scene.mSpriteObjectBuffer[0];
-      alien->mX = mod(cursorPos.x / CURSOR_SCALE, SCREEN_WIDTH);
-      alien->mY = mod(cursorPos.y / CURSOR_SCALE, SCREEN_HEIGHT);
-
-      // Resubmit our sprite
-      Scene_submit_one(&scene, 0);
-    }
+    Player_update(&player);
+    Scene_submit_one(&scene, 0);
   }
 }
 
