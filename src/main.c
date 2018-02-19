@@ -1,6 +1,11 @@
+// stl
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+// tonc
+#include "tonc_memmap.h"
+#include "tonc_memdef.h"
 
 // PMH
 #include "input.h"
@@ -19,16 +24,14 @@ static const uint16_t WHITE = 0xFFFF;  // Black
 
 #define CURSOR_HISTORY_COUNT 20
 
-#define REG_VCOUNT *((volatile uint16_t *)0x04000006)
-
-static uint16_t *const SCREEN = ((uint16_t *)0x06000000);
+static uint16_t *const SCREEN = ((uint16_t *)MEM_VRAM);
 
 static uint16_t *const TIMERS[4] = {
-    ((uint16_t *)0x4000100), ((uint16_t *)0x4000104), ((uint16_t *)0x4000108),
-    ((uint16_t *)0x400010C)};
+    ((uint16_t *)&REG_TM0D), ((uint16_t *)&REG_TM1D), ((uint16_t *)&REG_TM2D),
+    ((uint16_t *)&REG_TM3D)};
 static uint16_t *const TIMER_CONTROLS[4] = {
-    ((uint16_t *)0x4000102), ((uint16_t *)0x4000106), ((uint16_t *)0x400010A),
-    ((uint16_t *)0x400010E)};
+    ((uint16_t *)&REG_TM0CNT), ((uint16_t *)&REG_TM1CNT), ((uint16_t *)&REG_TM1CNT),
+    ((uint16_t *)&REG_TM3CNT)};
 
 void setPixel(Point pt, uint16_t color) { SCREEN[pt.x + pt.y * 240] = color; }
 
@@ -43,10 +46,10 @@ void setupTimer() {
   8-15  Not used
   */
 
-  *TIMER_CONTROLS[0] = 0b0000000010000011;  // Enabled with F/1024 speed
-  //*TIMER_CONTROLS[1] = 0b0000000010000010; // Enabled with F/256 speed
-  //*TIMER_CONTROLS[2] = 0b0000000010000001; // Enabled with F/64 speed
-  //*TIMER_CONTROLS[3] = 0b0000000010000000; // Enabled with F/1 speed
+  *TIMER_CONTROLS[0] = TM_ENABLE | TM_FREQ(TM_FREQ_1024);  // Enabled with F/1024 speed
+  //*TIMER_CONTROLS[1] = TM_ENABLE | TM_FREQ(TM_FREQ_256); // Enabled with F/256 speed
+  //*TIMER_CONTROLS[2] = TM_ENABLE | TM_FREQ(TM_FREQ_64); // Enabled with F/64 speed
+  //*TIMER_CONTROLS[3] = TM_ENABLE | TM_FREQ(TM_FREQ_1); // Enabled with F/1 speed
 }
 
 void vid_vsync() {
@@ -114,7 +117,7 @@ void doBitmapStuff() {
 
   setupTimer();
 
-  *(uint16_t *)0x04000000 = 0x0403;  // 10000000011, video mode
+  REG_DISPCNT= DCNT_MODE3 | DCNT_BG2;
 
   uint16_t oldTimerValues[4] = {0, 0, 0, 0};
 
@@ -141,7 +144,7 @@ void doSpriteStuff() {
   InputHandler inputHandler;
   InputHandler_init(&inputHandler);
 
-  *(uint16_t *)0x04000000 = 0x0040 | 0x1000;
+  REG_DISPCNT= DCNT_MODE0 | DCNT_OBJ_1D | DCNT_OBJ;
 
   Scene scene;
   Scene_init(&scene);
@@ -159,7 +162,7 @@ void doSpriteStuff() {
 }
 
 int main() {
-  // doBitmapStuff();
-  doSpriteStuff();
+  doBitmapStuff();
+  //doSpriteStuff();
   return 0;
 }
