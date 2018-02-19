@@ -16,8 +16,9 @@ static const uint16_t WHITE = 0xFFFF;  // Black
 
 static uint16_t *const SCREEN = ((uint16_t *)0x06000000);
 
-#include "assets/tileset_biome.c"
+#include "assets/tileset_biome.h"
 #include "input.h"
+#include "scene.h"
 
 static uint16_t *const TIMERS[4] = {
     ((uint16_t *)0x4000100), ((uint16_t *)0x4000104), ((uint16_t *)0x4000108),
@@ -101,7 +102,7 @@ void updateSnake(const InputHandler *inputHandler) {
   }
 }
 
-int main() {
+void doBitmapStuff() {
   InputHandler inputHandler;
   InputHandler_init(&inputHandler);
 
@@ -128,6 +129,53 @@ int main() {
       }
     }
   }
+}
 
+void doSpriteStuff() {
+  static Point cursorPos = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2};
+
+  InputHandler inputHandler;
+  InputHandler_init(&inputHandler);
+
+  *(uint16_t *)0x04000000 = 0x0040 | 0x1000;
+
+  Scene scene;
+  Scene_init(&scene);
+
+  while (1) {
+    InputHandler_update(&inputHandler);
+
+    bool moved = false;
+    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_LEFT)) {
+      cursorPos.x--;
+      moved |= (cursorPos.x % CURSOR_SCALE == 0);
+    }
+    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_RIGHT)) {
+      cursorPos.x++;
+      moved |= (cursorPos.x % CURSOR_SCALE == 0);
+    }
+    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_UP)) {
+      cursorPos.y--;
+      moved |= (cursorPos.y % CURSOR_SCALE == 0);
+    }
+    if (InputHandler_IsKeyPressed(&inputHandler, INPUT_KEY_DOWN)) {
+      cursorPos.y++;
+      moved |= (cursorPos.y % CURSOR_SCALE == 0);
+    }
+
+    if (moved) {
+      SPRITE_OBJ *alien = &scene.mSpriteObjectBuffer[0];
+      alien->mX = mod(cursorPos.x / CURSOR_SCALE, SCREEN_WIDTH);
+      alien->mY = mod(cursorPos.y / CURSOR_SCALE, SCREEN_HEIGHT);
+
+      // Resubmit our sprite
+      Scene_submit_one(&scene, 0);
+    }
+  }
+}
+
+int main() {
+  //doBitmapStuff();
+  doSpriteStuff();
   return 0;
 }
