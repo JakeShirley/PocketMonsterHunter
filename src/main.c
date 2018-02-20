@@ -12,6 +12,7 @@
 #include "player.h"
 #include "point.h"
 #include "scene.h"
+#include "tile_layer.h"
 
 static const uint16_t RED = 0x001F;    // 000000000011111 Red
 static const uint16_t GREEN = 0x03E0;  // 000001111100000 Green
@@ -161,8 +162,16 @@ void doSpriteStuff() {
   }
 }
 
+void doTileStuff() {
+  REG_DISPCNT= DCNT_MODE0 | DCNT_BG0;
+  
+  testbg();
+  while (1);
+}
+
 int main() {
-  doBitmapStuff();
+  //doBitmapStuff();
   //doSpriteStuff();
+  doTileStuff();
   return 0;
 }

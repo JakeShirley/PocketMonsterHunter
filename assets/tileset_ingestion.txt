@@ -1,0 +1,8 @@
+Save file as a BMP8
+
+Run grit on the bmp8
+C:\devkitPro\devkitARM\bin\grit.exe C:\src\PocketMonsterHunter\assets\textures\tileset_sand.bmp -gB4 -mRtpf -o assets_tileset_sand
+
+Paste into the src/ directory and consume!
+
+TODO: Make this an automated build step
